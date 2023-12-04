@@ -1,0 +1,140 @@
+/**
+ * These arguments were used when this file was generated. They will be automatically applied on subsequent loads
+ * via the GUI or CLI. Run CLI with '--help' for additional information on how to override these arguments.
+ * @cliArgs --board "/ti/boards/MSP_EXP432P401R" --product "simplelink_msp432p4_sdk@3.40.01.02"
+ * @versions {"tool":"1.10.0+2163"}
+ */
+
+/**
+ * Import the modules used in this configuration.
+ */
+const Display  = scripting.addModule("/ti/display/Display", {}, false);
+const Display1 = Display.addInstance();
+const ADC      = scripting.addModule("/ti/drivers/ADC", {}, false);
+const ADC1     = ADC.addInstance();
+const GPIO     = scripting.addModule("/ti/drivers/GPIO");
+const GPIO1    = GPIO.addInstance();
+const GPIO2    = GPIO.addInstance();
+const GPIO3    = GPIO.addInstance();
+const GPIO4    = GPIO.addInstance();
+const GPIO5    = GPIO.addInstance();
+const PWM      = scripting.addModule("/ti/drivers/PWM", {}, false);
+const PWM1     = PWM.addInstance();
+const PWM2     = PWM.addInstance();
+const PWM3     = PWM.addInstance();
+const PWM4     = PWM.addInstance();
+const PWM5     = PWM.addInstance();
+const PWM6     = PWM.addInstance();
+const PWM7     = PWM.addInstance();
+const PWM8     = PWM.addInstance();
+const RTOS     = scripting.addModule("/ti/drivers/RTOS");
+const UART     = scripting.addModule("/ti/drivers/UART", {}, false);
+const UART1    = UART.addInstance();
+const UART2    = UART.addInstance();
+const UART3    = UART.addInstance();
+
+/**
+ * Write custom configuration values to the imported modules.
+ */
+Display1.$name             = "Display_Type_UART";
+Display1.$hardware         = system.deviceData.board.components.XDS110UART;
+Display1.baudRate          = 9600;
+Display1.uart.$name        = "CONFIG_UART_0";
+Display1.uart.baudRates    = [9600];
+Display1.uart.uart.$assign = "EUSCI_A0";
+
+ADC1.$name              = "HUMIDITY_SENSOR";
+ADC1.adc.adcPin.$assign = "boosterpack.13";
+
+GPIO1.mode            = "Output";
+GPIO1.outputStrength  = "High";
+GPIO1.$name           = "MOTOR_1_A";
+GPIO1.gpioPin.$assign = "boosterpack.24";
+
+GPIO2.mode            = "Output";
+GPIO2.outputStrength  = "High";
+GPIO2.$name           = "MOTOR_1_B";
+GPIO2.gpioPin.$assign = "boosterpack.5";
+
+GPIO3.mode            = "Output";
+GPIO3.outputStrength  = "High";
+GPIO3.$name           = "MOTOR_2_A";
+GPIO3.gpioPin.$assign = "boosterpack.25";
+
+GPIO4.mode            = "Output";
+GPIO4.outputStrength  = "High";
+GPIO4.$name           = "MOTOR_2_B";
+GPIO4.gpioPin.$assign = "boosterpack.6";
+
+GPIO5.$name           = "NSLEEP";
+GPIO5.gpioPin.$assign = "expansion.1";
+
+PWM1.$name                = "SERVO_0";
+PWM1.timer.$assign        = "Timer_A0";
+PWM1.timer.pwmPin.$assign = "boosterpack.38";
+
+PWM2.$name                = "SERVO_1";
+PWM2.timer.$assign        = "Timer_A0";
+PWM2.timer.pwmPin.$assign = "boosterpack.19";
+
+PWM3.$name                = "PWM_MOTOR_0";
+PWM3.timer.$assign        = "Timer_A1";
+PWM3.timer.pwmPin.$assign = "boosterpack.18";
+
+PWM4.$name                = "PWM_MOTOR_1";
+PWM4.timer.pwmPin.$assign = "boosterpack.32";
+
+PWM5.$name                = "PWM_MOTOR_2";
+PWM5.timer.$assign        = "Timer_A1";
+PWM5.timer.pwmPin.$assign = "boosterpack.11";
+
+PWM6.$name                = "PWM_MOTOR_3";
+PWM6.timer.$assign        = "Timer_A1";
+PWM6.timer.pwmPin.$assign = "boosterpack.31";
+
+PWM7.$name                = "SERVO_2";
+PWM7.timer.pwmPin.$assign = "boosterpack.39";
+
+PWM8.$name                = "SERVO_3";
+PWM8.timer.pwmPin.$assign = "boosterpack.40";
+
+const Power                   = scripting.addModule("/ti/drivers/Power", {}, false);
+Power.performanceLevel3.$name = "ti_drivers_power_PowerMSP432PerfLevels0";
+Power.performanceLevel2.$name = "ti_drivers_power_PowerMSP432PerfLevels1";
+Power.performanceLevel1.$name = "ti_drivers_power_PowerMSP432PerfLevels2";
+Power.performanceLevel0.$name = "ti_drivers_power_PowerMSP432PerfLevels3";
+
+RTOS.name = "FreeRTOS";
+
+UART1.clockSource        = "SMCLK";
+UART1.baudRates          = [9600];
+UART1.ringBufferSize     = 64;
+UART1.$name              = "BLUETOOTH";
+UART1.uart.$assign       = "EUSCI_A2";
+UART1.uart.txPin.$assign = "boosterpack.4";
+UART1.uart.rxPin.$assign = "boosterpack.3";
+
+UART2.clockSource        = "SMCLK";
+UART2.baudRates          = [9600];
+UART2.$name              = "GPS";
+UART2.ringBufferSize     = 128;
+UART2.uart.$assign       = "EUSCI_A1";
+UART2.uart.txPin.$assign = "expansion.15";
+UART2.uart.rxPin.$assign = "expansion.18";
+
+UART3.$name = "Base_BLUETOOTH";
+
+/**
+ * Pinmux solution for unlocked pins/peripherals. This ensures that minor changes to the automatic solver in a future
+ * version of the tool will not impact the pinmux you originally saw.  These lines can be completely deleted in order to
+ * re-solve from scratch.
+ */
+Display1.uart.uart.txPin.$suggestSolution = "ball.7";
+Display1.uart.uart.rxPin.$suggestSolution = "ball.6";
+ADC1.adc.$suggestSolution                 = "ADC14";
+PWM4.timer.$suggestSolution               = "Timer_A0";
+PWM7.timer.$suggestSolution               = "Timer_A1";
+PWM8.timer.$suggestSolution               = "Timer_A0";
+UART3.uart.$suggestSolution               = "EUSCI_A3";
+UART3.uart.txPin.$suggestSolution         = "expansion.22";
+UART3.uart.rxPin.$suggestSolution         = "expansion.19";
