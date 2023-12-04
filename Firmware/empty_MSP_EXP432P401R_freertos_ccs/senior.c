@@ -43,6 +43,7 @@
 #define BUTTON_LEFT_MSG     "b-left\r\n"
 #define BUTTON_RIGHT_MSG    "b-right\r\n"
 
+
 typedef enum{
     NO = -1, UP, DOWN, RIGHT, LEFT, CENTER_BUTTON, BACK_RIGHT, BACK_LEFT,
 }button_t;
@@ -61,6 +62,8 @@ event_t joystick = {.device = JOYSTICK, .button = NO};
 event_t buttons = {.device = BUTTON, .button = NO};
 
 bool isSubstring(char *str, char *substr);
+button_t check_button(void);
+button_t check_joystick(void);
 
 /* Global objects */
 
@@ -91,6 +94,29 @@ gps_t gps = {.uart = GPS,.handle = NULL, .buffer = "NONE"};
 
 //void hardware_init(void);
 
+void *displayThread(void *arg0){
+    Display_init();
+    Display_Params displayParams;
+    Display_Handle displayHandle;
+    Display_Params_init(&displayParams);
+    displayParams.lineClearMode = DISPLAY_CLEAR_BOTH;
+
+    displayHandle = Display_open(Display_Type_UART,&displayParams);
+
+    if(displayHandle == NULL){
+        Display_printf(displayHandle, 0,0, "Aisplay has not been successfully setup!\n");
+        while(1);
+    }
+    else{
+        Display_printf(displayHandle, 0,0, "Display has been successfully setup!\n");
+    }
+    int count = 0;
+    Display_printf(displayHandle, 0,0, "Testing Display Handle");
+    while(1){
+        Display_printf(displayHandle, 0, 0, "%d ", count++);
+        __delay_cycles(100000);
+    }
+}
 
 /*\brief Bluetooth Thread
  *
@@ -99,7 +125,6 @@ gps_t gps = {.uart = GPS,.handle = NULL, .buffer = "NONE"};
  * @return None
  * */
 void *bluetoothThread(void *arg0){
-
         Display_init();
         Display_Params displayParams;
         Display_Handle displayHandle;
@@ -109,12 +134,13 @@ void *bluetoothThread(void *arg0){
         displayHandle = Display_open(Display_Type_UART,&displayParams);
 
         if(displayHandle == NULL){
-            Display_printf(displayHandle, 0,0, "Display has not been successfully setup!\n");
-            while(1);
+           Display_printf(displayHandle, 0,0, "Aisplay has not been successfully setup!\n");
+           while(1);
         }
         else{
-            Display_printf(displayHandle, 0,0, "Display has been successfully setup!\n");
+           Display_printf(displayHandle, 0,0, "Display has been successfully setup!\n");
         }
+        Display_printf(displayHandle, 0,0, "Testing Display Handle");
 
         hc_05_init(&hc_05);
         hc_05_init(&gui_bluetooth);
@@ -125,62 +151,50 @@ void *bluetoothThread(void *arg0){
             /* Decrypt messaged received */
 
             /* Lock Mutuex */
-            Display_printf(displayHandle, 0,0, "%s", hc_05.buffer);
 
-            if(isSubstring(gui_bluetooth.buffer,"j-up\r\n")){
-                Display_printf(displayHandle, 0,0, "J-FORWARD\n");
+            if(isSubstring(hc_05.buffer,"j-up")){
+                Display_printf(displayHandle, 0,0, "J-UP");
                 joystick.button = UP;
-                memset(hc_05.buffer, 0 , sizeof(hc_05.buffer));
             }
-            else if(isSubstring(hc_05.buffer,"j-down\r\n")){
-                Display_printf(displayHandle, 0,0, "J-DOWNWARD\n");
-                joystick.button = DOWN;
-                memset(hc_05.buffer, 0 , sizeof(hc_05.buffer));
+            else if(isSubstring(hc_05.buffer,"j-down")){
+                Display_printf(displayHandle, 0,0, "J-BUTTON");
+                joystick.button = CENTER_BUTTON;
             }
             else if(isSubstring(hc_05.buffer,"j-left")){
-                Display_printf(displayHandle, 0,0, "J-LEFT\n");
+                Display_printf(displayHandle, 0,0, "J-LEFT");
                 joystick.button = LEFT;
-                memset(hc_05.buffer, 0 , sizeof(hc_05.buffer));
             }
             else if(isSubstring(hc_05.buffer,"j-right")){
-                Display_printf(displayHandle, 0,0, "J-RIGHT\n");
+                Display_printf(displayHandle, 0,0, "J-RIGHT");
                 joystick.button = RIGHT;
-                memset(hc_05.buffer, 0 , sizeof(hc_05.buffer));
             }
             else if(isSubstring(hc_05.buffer,"j-button")){
-                Display_printf(displayHandle, 0,0, "J-BUTTON\n");
-                joystick.button = CENTER_BUTTON;
-                memset(hc_05.buffer, 0 , sizeof(hc_05.buffer));
+                Display_printf(displayHandle, 0,0, "J-DOWN");
+                joystick.button = DOWN;
             }
             else if(isSubstring(hc_05.buffer,"b-up")){
-                Display_printf(displayHandle, 0,0, "B-UP\n");
+                Display_printf(displayHandle, 0,0, "B-UP");
                 buttons.button = UP;
-                memset(hc_05.buffer, 0 , sizeof(hc_05.buffer));
             }
             else if(isSubstring(hc_05.buffer,"b-down")){
-                Display_printf(displayHandle, 0,0, "B-DOWN\n");
+                Display_printf(displayHandle, 0,0, "B-DOWN");
                 buttons.button = DOWN;
-                memset(hc_05.buffer, 0 , sizeof(hc_05.buffer));
             }
             else if(isSubstring(hc_05.buffer,"b-right")){
-                Display_printf(displayHandle, 0,0, "B-RIGHT\n");
+                Display_printf(displayHandle, 0,0, "B-RIGHT");
                 buttons.button = RIGHT;
-                memset(hc_05.buffer, 0 , sizeof(hc_05.buffer));
             }
             else if(isSubstring(hc_05.buffer,"b-left")){
-                Display_printf(displayHandle, 0,0, "B-LEFT\n");
+                Display_printf(displayHandle, 0,0, "B-LEFT");
                 buttons.button = LEFT;
-                memset(hc_05.buffer, 0 , sizeof(hc_05.buffer));
             }
             else if(isSubstring(hc_05.buffer, "b-back-right")){
-                Display_printf(displayHandle, 0,0, "B-BACK-RIGHT\n");
+                Display_printf(displayHandle, 0,0, "B-BACK-RIGHT");
                 buttons.button = BACK_RIGHT;
-                memset(hc_05.buffer, 0 , sizeof(hc_05.buffer));
             }
             else if(isSubstring(hc_05.buffer, "b-back-left")){
-                Display_printf(displayHandle, 0,0, "B-BACK-LEFT\n");
+                Display_printf(displayHandle, 0,0, "B-BACK-LEFT");
                 buttons.button = BACK_LEFT;
-                memset(hc_05.buffer, 0 , sizeof(hc_05.buffer));
             }
             else{
                 joystick.button = NO;
@@ -203,47 +217,47 @@ void *motorMovementThread(void *arg0){
     int count = 0;
     while(1){
         /* If j-up */
-        if(joystick.button == NO){
+        if(check_joystick() == NO){
             motors_stop(&left_side, &right_side);
         }
-        else if(buttons.button == NO){
+        else if(check_button() == NO){
             stepper_stop(&robotic_base);
         }
-        else if(joystick.button == UP){
+        else if(check_joystick() == UP){
             motors_forward(&left_side, &right_side);
         }
         /* If j-down */
-        else if(joystick.button == DOWN){
+        else if(check_joystick() == DOWN){
             motors_backward(&left_side, &right_side);
         }
         /* If j-right */
-        else if(joystick.button == RIGHT){
+        else if(check_joystick() == RIGHT){
             motors_right(&left_side, &right_side);
         }
         /* If j-left */
-        else if(joystick.button == LEFT){
+        else if(check_joystick() == LEFT){
             motors_left(&left_side, &right_side);
         }
         /* Stepper Motor */
-        else if(buttons.button == RIGHT){
+        else if(check_button() == RIGHT){
             count++;
             if(count >= 50){
                 __delay_cycles(100);
             }
             else{
                 /* Move base motor forward */
-                stepper_right(&robotic_base);
+                stepper_left(&robotic_base);
             }
         }
         /* Stepper Motor */
-        else if(buttons.button == LEFT){
+        else if(check_button() == LEFT){
             count--;
             if(count <= -50){
                 __delay_cycles(100);
             }
             else{
                 /* Move base motor backward */
-                stepper_left(&robotic_base);
+                stepper_right(&robotic_base);
             }
         }
         else{
@@ -258,15 +272,16 @@ void *motorMovementThread(void *arg0){
  * @return None
  * */
 void *gpsThread(void *arg0){
+
     gps_init(&gps);
     while(1){
         gps_read(&gps);
         if(isSubstring(gps.buffer, "$GPRMC")){
             tokenize_gps(&gps);
+//            Display_printf(displayHandle, 0,0, "NMEA: %s", gps.buffer);
             //Send string to GUI
-            hc_05_write(&gui_bluetooth, gps.buffer);
+//            hc_05_write(&gui_bluetooth, gps.buffer);
         }
-        __delay_cycles(100);
     }
 }
 /*\brief Sensor Thread
@@ -289,33 +304,105 @@ void *sensorThread(void *arg0){
  * @param arg           Arm Arguement
  * @return None
  * */
-void *armThreadRight(void *arg0){
+//void *armThreadRight(void *arg0){
+//
+//    int count_bottom = SERVO_AVERAGE;
+//    int count_upper = SERVO_AVERAGE;
+//    while(1){
+//        if(check_button() == NO){
+//            arm_stop(&robotic_arm);
+//        }
+//        else if(check_button() == UP){
+//            if((count_bottom += 1000) != SERVO_MAX){
+//                arm_set_duty(&robotic_arm, count_bottom, 1);
+//            }
+//        }
+//        else if(check_button() == DOWN){
+//            if((count_bottom -= 1000) != SERVO_MIN){
+//                arm_set_duty(&robotic_arm, count_bottom, 1);
+//            }
+//        }
+//        else if(check_button() == BACK_RIGHT){
+//            if((count_upper += 1000) != SERVO_MAX){
+//                arm_set_duty(&robotic_arm, count_upper, 3);
+//            }
+//        }
+//        else if(check_button() == BACK_LEFT){
+//            if((count_upper -= 1000) != SERVO_MIN){
+//                arm_set_duty(&robotic_arm, count_upper, 3);
+//            }
+//        }
+//        else{
+//            __delay_cycles(100);
+//        }
+//    }
+//}
+//
+//void *armThreadLeft(void *arg0){
+//
+//    int count_bottom = SERVO_AVERAGE;
+//    int count_upper = SERVO_AVERAGE;
+//    while(1){
+//            if(check_button() == NO){
+//                arm_stop(&robotic_arm);
+//            }
+//            else if(check_button() == UP){
+//                if((count_bottom -= 1000) != SERVO_MIN){
+//                    arm_set_duty(&robotic_arm, count_bottom, 2);
+//            }
+//            else if(check_button() == DOWN){
+//                if((count_bottom += 1000) != SERVO_MAX)
+//                    arm_set_duty(&robotic_arm, count_bottom, 2);
+//            }
+//            else if(check_button() == BACK_RIGHT){
+//                if((count_upper -= 1000) != SERVO_MIN){
+//                    arm_set_duty(&robotic_arm, count_upper, 4);
+//                }
+//            }
+//            else if(check_button() == BACK_LEFT){
+//                if((count_upper += 1000) != SERVO_MAX){
+//                    arm_set_duty(&robotic_arm, count_upper, 4);
+//                }
+//            }
+//            else{
+//                __delay_cycles(100);
+//            }
+//        }
+//    }
+//}
+void *armThread(void *arg0){
     arm_set_duty_all(&robotic_arm, SERVO_AVERAGE);
     arm_start(&robotic_arm);
-    int count_bottom = SERVO_AVERAGE;
-    int count_upper = SERVO_AVERAGE;
+    int arm_joint_1_1= SERVO_AVERAGE;
+    int arm_joint_1_2 = SERVO_AVERAGE;
+    int arm_joint_2_1 = SERVO_AVERAGE;
+    int arm_joint_2_2 = SERVO_AVERAGE;
     while(1){
-        if(buttons.button == NO){
+        if(check_button() == NO){
             arm_stop(&robotic_arm);
         }
-        else if(buttons.button == UP){
-            if((count_bottom += 1000) != SERVO_MAX){
-                arm_set_duty(&robotic_arm, count_bottom, 1);
+        else if(check_button() == UP){
+            if(((arm_joint_1_1 -= 1000) != SERVO_MIN) && ((arm_joint_2_1 += 1000) != SERVO_MAX)){
+                arm_set_duty(&robotic_arm, arm_joint_1_1, 1);
+                arm_set_duty(&robotic_arm, arm_joint_2_1, 2);
             }
         }
-        else if(buttons.button == DOWN){
-            if((count_bottom -= 1000) != SERVO_MIN){
-                arm_set_duty(&robotic_arm, count_bottom, 1);
+        else if(check_button() == DOWN){
+            if(((arm_joint_1_1 += 1000) != SERVO_MAX) && ((arm_joint_2_1 -= 1000) != SERVO_MIN)){
+                arm_set_duty(&robotic_arm, arm_joint_1_1, 1);
+                arm_set_duty(&robotic_arm, arm_joint_2_1, 2);
             }
         }
-        else if(buttons.button == BACK_RIGHT){
-            if((count_upper += 1000) != SERVO_MAX){
-                arm_set_duty(&robotic_arm, count_upper, 3);
+        else if(check_button() == LEFT){
+            if(((arm_joint_1_2 -= 1000) != SERVO_MIN) && ((arm_joint_2_2 += 1000) != SERVO_MAX)){
+                arm_set_duty(&robotic_arm, arm_joint_1_1, 3);
+                arm_set_duty(&robotic_arm, arm_joint_2_1, 4);
             }
         }
-        else if(buttons.button == BACK_LEFT){
-            if((count_upper -= 1000) != SERVO_MIN){
-                arm_set_duty(&robotic_arm, count_upper, 3);
+        else if(check_button() == RIGHT){
+            if(((arm_joint_1_2 += 1000) != SERVO_MAX) && ((arm_joint_2_2 -= 1000) != SERVO_MIN)){
+                arm_set_duty(&robotic_arm, arm_joint_1_1, 3);
+                arm_set_duty(&robotic_arm, arm_joint_2_1, 4);
             }
         }
         else{
@@ -324,37 +411,11 @@ void *armThreadRight(void *arg0){
     }
 }
 
-void *armThreadLeft(void *arg0){
-
-    int count_bottom = SERVO_AVERAGE;
-    int count_upper = SERVO_AVERAGE;
-    while(1){
-            if(buttons.button == NO){
-                arm_stop(&robotic_arm);
-            }
-            else if(buttons.button == UP){
-                if((count_bottom -= 1000) != SERVO_MIN){
-                    arm_set_duty(&robotic_arm, count_bottom, 2);
-            }
-            else if(buttons.button == DOWN){
-                if((count_bottom += 1000) != SERVO_MAX)
-                    arm_set_duty(&robotic_arm, count_bottom, 2);
-            }
-            else if(buttons.button == BACK_RIGHT){
-                if((count_upper -= 1000) != SERVO_MIN){
-                    arm_set_duty(&robotic_arm, count_upper, 4);
-                }
-            }
-            else if(buttons.button == BACK_LEFT){
-                if((count_upper += 1000) != SERVO_MAX){
-                    arm_set_duty(&robotic_arm, count_upper, 4);
-                }
-            }
-            else{
-                __delay_cycles(100);
-            }
-        }
-    }
+button_t check_button(void){
+    return buttons.button;
+}
+button_t check_joystick(void){
+    return joystick.button;
 }
 
 

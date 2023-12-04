@@ -30,7 +30,7 @@ DisplayUart_Object displayUartObject;
 
 const DisplayUart_HWAttrs displayUartHWAttrs = {
     .uartIdx      = CONFIG_UART_0,
-    .baudRate     = 9600,
+    .baudRate     = 115200,
     .mutexTimeout = (unsigned int)(-1),
     .strBuf       = displayUARTBuffer,
     .strBufLen    = Display_UARTBUFFERSIZE
@@ -328,13 +328,12 @@ static const UARTMSP432_BaudrateConfig uartMSP432Baudrates[] = {
     { 115200, 6000000, 3, 4, 2, 1 },
     { 115200, 12000000, 6, 8, 32, 1 },
     { 115200, 24000000, 13, 0, 37, 1 },
-    { 9600, 32768, 3, 0, 146, 0 },
 };
 
-static unsigned char uartMSP432RingBuffer0[64];
+static unsigned char uartMSP432RingBuffer0[128];
 static unsigned char uartMSP432RingBuffer1[128];
 static unsigned char uartMSP432RingBuffer2[32];
-static unsigned char uartMSP432RingBuffer3[32];
+static unsigned char uartMSP432RingBuffer3[128];
 
 
 static const UARTMSP432_HWAttrsV1 uartMSP432HWAttrs[CONFIG_UART_COUNT] = {
@@ -386,8 +385,8 @@ static const UARTMSP432_HWAttrsV1 uartMSP432HWAttrs[CONFIG_UART_COUNT] = {
   {
     .baseAddr           = EUSCI_A0_BASE,
     .intNum             = INT_EUSCIA0,
-    .intPriority        = (~0),
-    .clockSource        = EUSCI_A_UART_CLOCKSOURCE_ACLK,
+    .intPriority        = 0x20,
+    .clockSource        = EUSCI_A_UART_CLOCKSOURCE_SMCLK,
     .bitOrder           = EUSCI_A_UART_LSB_FIRST,
     .numBaudrateEntries = sizeof(uartMSP432Baudrates) /
                           sizeof(UARTMSP432_BaudrateConfig),

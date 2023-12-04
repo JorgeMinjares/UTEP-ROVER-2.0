@@ -43,13 +43,12 @@ void hc_05_write(bluetooth_t * const hc_05, char * buffer){
     UART_write(hc_05->handle, hc_05->buffer, strlen(hc_05->buffer));
 }
 void hc_05_read(bluetooth_t * const hc_05){
-    memset(hc_05->buffer, 0, HC_05_BUFFER_SIZE);
     char c;
     uint8_t index = 0;
+    memset(hc_05->buffer, 0, sizeof(hc_05->buffer));
     do{
         UART_read(hc_05->handle, &c, 1);
         hc_05->buffer[index++] = c;
     }while(c != '\n');
-    index = 0;
 }
 

@@ -6,6 +6,7 @@
  */
 
 #include "inc/gps.h"
+#include "string.h"
 void gps_init(gps_t * const gps){
     UART_init();
     UART_Params gps_params;
@@ -36,11 +37,11 @@ void gps_init(gps_t * const gps){
 void gps_read(gps_t * const gps){
     char c;
     uint8_t index = 0;
+    memset(gps->buffer, 0, sizeof(gps->buffer));
     do{
         UART_read(gps->handle, &c, 1);
         gps->buffer[index++] = c;
     }while(c != '\n');
-    index = 0;
 }
 void tokenize_gps(gps_t * const gps){
     uint8_t i;

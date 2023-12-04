@@ -53,11 +53,13 @@
 /*
  * void *motorMovementThread(void *arg0)
  * */
+//#define DISPLAY_THREAD
 #define MOTOR_MOVEMENT_THREAD
 #define BLUETOOTH_THREAD
 #define GPS_THREAD
-//#define SENSOR_THREAD
-#define ROBOTIC_ARM_THREAD
+#define ARM_THREAD
+////#define SENSOR_THREAD
+//#define ROBOTIC_ARM_THREAD
 
 
 #ifdef MOTOR_MOVEMENT_THREAD
@@ -76,22 +78,27 @@ extern void *gpsThread(void *arg0);
 extern void *sensorThread(void *arg0);
 #endif
 
-#ifdef ROBOTIC_ARM_THREAD
+#ifdef ARM_THREAD
+extern void *armThread(void *arg0);
+#endif
+
+#ifdef ROBOTIC_ARM_THREADS
 extern void *armThreadRight(void *arg0);
 extern void *armThreadLeft(void *arg0);
 #endif
 
+#ifdef DISPLAY_THREAD
+extern void *displayThread(void *arg0);
+#endif
 //extern void hardware_init();
 
 /* Stack size in bytes */
-#define THREADSTACKSIZE  1024 //1024
+#define THREADSTACKSIZE  2048 //1024
 
 /*
  *  ======== main ========
  */
-int main(void)
-{
-
+int main(void){
 
     pthread_attr_t      attrs;
     struct sched_param  priParam;
@@ -120,6 +127,10 @@ int main(void)
 
 #ifdef BLUETOOTH_THREAD
     pthread_t thread1;
+    priParam.sched_priority = 6;
+    retc = pthread_attr_setschedparam(&attrs, &priParam);
+    retc |= pthread_attr_setdetachstate(&attrs, PTHREAD_CREATE_DETACHED);
+    retc |= pthread_attr_setstacksize(&attrs, THREADSTACKSIZE);
     retc = pthread_create(&thread1, &attrs, bluetoothThread, NULL);
     if(retc != 0){
         /* pthread_create() faild */
@@ -129,6 +140,10 @@ int main(void)
 
 #ifdef MOTOR_MOVEMENT_THREAD
     pthread_t thread2;
+    priParam.sched_priority = 5;
+    retc = pthread_attr_setschedparam(&attrs, &priParam);
+    retc |= pthread_attr_setdetachstate(&attrs, PTHREAD_CREATE_DETACHED);
+    retc |= pthread_attr_setstacksize(&attrs, THREADSTACKSIZE);
     retc = pthread_create(&thread2, &attrs, motorMovementThread, NULL);
     if(retc != 0){
         /* pthread_create() faild */
@@ -139,12 +154,17 @@ int main(void)
 
 #ifdef GPS_THREAD
     pthread_t thread3;
+    priParam.sched_priority = 3;
+    retc = pthread_attr_setschedparam(&attrs, &priParam);
+    retc |= pthread_attr_setdetachstate(&attrs, PTHREAD_CREATE_DETACHED);
+    retc |= pthread_attr_setstacksize(&attrs, THREADSTACKSIZE);
     retc = pthread_create(&thread3, &attrs, gpsThread, NULL);
     if(retc != 0){
         /* pthread_create() faild */
         while(1){}
     }
 #endif
+
 #ifdef SENSOR_THREAD
     pthread_t thread4;
     retc = pthread_create(&thread4, &attrs, sensorThread, NULL);
@@ -154,8 +174,25 @@ int main(void)
     }
 #endif
 
-#ifdef ROBOTIC_ARM_THREAD
+#ifdef ARM_THREAD
+    pthread_t thread8;
+    priParam.sched_priority = 3;
+    retc = pthread_attr_setschedparam(&attrs, &priParam);
+    retc |= pthread_attr_setdetachstate(&attrs, PTHREAD_CREATE_DETACHED);
+    retc |= pthread_attr_setstacksize(&attrs, THREADSTACKSIZE);
+    retc = pthread_create(&thread8, &attrs, armThread, NULL);
+    if(retc != 0){
+       /* pthread_create() faild */
+       while(1){}
+    }
+#endif
+
+#ifdef ROBOTIC_ARM_THREADS
     pthread_t thread5;
+    priParam.sched_priority = 4;
+    retc = pthread_attr_setschedparam(&attrs, &priParam);
+    retc |= pthread_attr_setdetachstate(&attrs, PTHREAD_CREATE_DETACHED);
+    retc |= pthread_attr_setstacksize(&attrs, THREADSTACKSIZE);
     retc = pthread_create(&thread5, &attrs, armThreadRight, NULL);
     if(retc != 0){
         /* pthread_create() faild */
@@ -164,6 +201,19 @@ int main(void)
 
     pthread_t thread6;
     retc = pthread_create(&thread6, &attrs, armThreadLeft, NULL);
+    if(retc != 0){
+        /* pthread_create() faild */
+        while(1){}
+    }
+#endif
+
+#ifdef DISPLAY_THREAD
+    pthread_t thread7;
+    priParam.sched_priority = 8;
+    retc = pthread_attr_setschedparam(&attrs, &priParam);
+    retc |= pthread_attr_setdetachstate(&attrs, PTHREAD_CREATE_DETACHED);
+    retc |= pthread_attr_setstacksize(&attrs, THREADSTACKSIZE);
+    retc = pthread_create(&thread7, &attrs, displayThread, NULL);
     if(retc != 0){
         /* pthread_create() faild */
         while(1){}

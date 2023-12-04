@@ -36,12 +36,11 @@ const UART3    = UART.addInstance();
 /**
  * Write custom configuration values to the imported modules.
  */
-Display1.$name             = "Display_Type_UART";
-Display1.$hardware         = system.deviceData.board.components.XDS110UART;
-Display1.baudRate          = 9600;
-Display1.uart.$name        = "CONFIG_UART_0";
-Display1.uart.baudRates    = [9600];
-Display1.uart.uart.$assign = "EUSCI_A0";
+Display1.$name                  = "Display_Type_UART";
+Display1.$hardware              = system.deviceData.board.components.XDS110UART;
+Display1.uart.$name             = "CONFIG_UART_0";
+Display1.uart.interruptPriority = "1";
+Display1.uart.ringBufferSize    = 128;
 
 ADC1.$name              = "HUMIDITY_SENSOR";
 ADC1.adc.adcPin.$assign = "boosterpack.13";
@@ -108,8 +107,8 @@ RTOS.name = "FreeRTOS";
 
 UART1.clockSource        = "SMCLK";
 UART1.baudRates          = [9600];
-UART1.ringBufferSize     = 64;
 UART1.$name              = "BLUETOOTH";
+UART1.ringBufferSize     = 128;
 UART1.uart.$assign       = "EUSCI_A2";
 UART1.uart.txPin.$assign = "boosterpack.4";
 UART1.uart.rxPin.$assign = "boosterpack.3";
@@ -129,6 +128,7 @@ UART3.$name = "Base_BLUETOOTH";
  * version of the tool will not impact the pinmux you originally saw.  These lines can be completely deleted in order to
  * re-solve from scratch.
  */
+Display1.uart.uart.$suggestSolution       = "EUSCI_A0";
 Display1.uart.uart.txPin.$suggestSolution = "ball.7";
 Display1.uart.uart.rxPin.$suggestSolution = "ball.6";
 ADC1.adc.$suggestSolution                 = "ADC14";
