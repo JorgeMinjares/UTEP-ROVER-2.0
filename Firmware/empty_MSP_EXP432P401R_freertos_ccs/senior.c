@@ -140,7 +140,7 @@ void *bluetoothThread(void *arg0){
         else{
            Display_printf(displayHandle, 0,0, "Display has been successfully setup!\n");
         }
-        Display_printf(displayHandle, 0,0, "Testing Display Handle");
+        Display_printf(displayHandle, 0,0, "Testing Display Handle BLUETOOTH");
 
         hc_05_init(&hc_05);
         hc_05_init(&gui_bluetooth);
@@ -148,9 +148,6 @@ void *bluetoothThread(void *arg0){
         while(1){
 
             hc_05_read(&hc_05);
-            /* Decrypt messaged received */
-
-            /* Lock Mutuex */
 
             if(isSubstring(hc_05.buffer,"j-up")){
                 Display_printf(displayHandle, 0,0, "J-UP");
@@ -211,7 +208,6 @@ void *bluetoothThread(void *arg0){
  * @return None
  * */
 void *motorMovementThread(void *arg0){
-//    hardware_init();
     motors_init(&left_side, &right_side);
     motors_pwm_start(&left_side, &right_side);
     int count = 0;
@@ -280,7 +276,7 @@ void *gpsThread(void *arg0){
             tokenize_gps(&gps);
 //            Display_printf(displayHandle, 0,0, "NMEA: %s", gps.buffer);
             //Send string to GUI
-//            hc_05_write(&gui_bluetooth, gps.buffer);
+            hc_05_write(&gui_bluetooth, gps.buffer);
         }
     }
 }
@@ -292,10 +288,14 @@ void *gpsThread(void *arg0){
  */
 void *sensorThread(void *arg0){
 
+    sensor_init(&humidity_sensor);
     while(1){
         //CONVERT REGISTER LEVEL CODE
-
-        //SEND TO GUI
+        if(check_button() == CENTER_BUTTON){
+            sensor_read(&humidity_sensor);
+            //SEND TO GUI
+            hc_05_write(&gui_bluetooth, humidity_sensor.adc_avg);
+        }
     }
 }
 /*\brief Arm Thread
@@ -304,72 +304,6 @@ void *sensorThread(void *arg0){
  * @param arg           Arm Arguement
  * @return None
  * */
-//void *armThreadRight(void *arg0){
-//
-//    int count_bottom = SERVO_AVERAGE;
-//    int count_upper = SERVO_AVERAGE;
-//    while(1){
-//        if(check_button() == NO){
-//            arm_stop(&robotic_arm);
-//        }
-//        else if(check_button() == UP){
-//            if((count_bottom += 1000) != SERVO_MAX){
-//                arm_set_duty(&robotic_arm, count_bottom, 1);
-//            }
-//        }
-//        else if(check_button() == DOWN){
-//            if((count_bottom -= 1000) != SERVO_MIN){
-//                arm_set_duty(&robotic_arm, count_bottom, 1);
-//            }
-//        }
-//        else if(check_button() == BACK_RIGHT){
-//            if((count_upper += 1000) != SERVO_MAX){
-//                arm_set_duty(&robotic_arm, count_upper, 3);
-//            }
-//        }
-//        else if(check_button() == BACK_LEFT){
-//            if((count_upper -= 1000) != SERVO_MIN){
-//                arm_set_duty(&robotic_arm, count_upper, 3);
-//            }
-//        }
-//        else{
-//            __delay_cycles(100);
-//        }
-//    }
-//}
-//
-//void *armThreadLeft(void *arg0){
-//
-//    int count_bottom = SERVO_AVERAGE;
-//    int count_upper = SERVO_AVERAGE;
-//    while(1){
-//            if(check_button() == NO){
-//                arm_stop(&robotic_arm);
-//            }
-//            else if(check_button() == UP){
-//                if((count_bottom -= 1000) != SERVO_MIN){
-//                    arm_set_duty(&robotic_arm, count_bottom, 2);
-//            }
-//            else if(check_button() == DOWN){
-//                if((count_bottom += 1000) != SERVO_MAX)
-//                    arm_set_duty(&robotic_arm, count_bottom, 2);
-//            }
-//            else if(check_button() == BACK_RIGHT){
-//                if((count_upper -= 1000) != SERVO_MIN){
-//                    arm_set_duty(&robotic_arm, count_upper, 4);
-//                }
-//            }
-//            else if(check_button() == BACK_LEFT){
-//                if((count_upper += 1000) != SERVO_MAX){
-//                    arm_set_duty(&robotic_arm, count_upper, 4);
-//                }
-//            }
-//            else{
-//                __delay_cycles(100);
-//            }
-//        }
-//    }
-//}
 void *armThread(void *arg0){
     arm_set_duty_all(&robotic_arm, SERVO_AVERAGE);
     arm_start(&robotic_arm);

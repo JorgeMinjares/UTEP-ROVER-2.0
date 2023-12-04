@@ -58,7 +58,7 @@
 #define BLUETOOTH_THREAD
 #define GPS_THREAD
 #define ARM_THREAD
-////#define SENSOR_THREAD
+//#define SENSOR_THREAD
 //#define ROBOTIC_ARM_THREAD
 
 
@@ -167,7 +167,11 @@ int main(void){
 
 #ifdef SENSOR_THREAD
     pthread_t thread4;
+    priParam.sched_priority = 4;
     retc = pthread_create(&thread4, &attrs, sensorThread, NULL);
+    retc = pthread_attr_setschedparam(&attrs, &priParam);
+    retc |= pthread_attr_setdetachstate(&attrs, PTHREAD_CREATE_DETACHED);
+    retc |= pthread_attr_setstacksize(&attrs, THREADSTACKSIZE);
     if(retc != 0){
         /* pthread_create() faild */
         while(1){}
